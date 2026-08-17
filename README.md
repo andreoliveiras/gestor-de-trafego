@@ -15,7 +15,7 @@ Quem escala pelo número do gerenciador escala no escuro. Esta skill mostra os d
 Precisa de Node 18 ou mais novo e do Claude Code.
 
 ```bash
-git clone https://github.com/SEU-USUARIO/gestor-de-trafego.git ~/.claude/skills/gestor-de-trafego
+git clone https://github.com/andreoliveiras/gestor-de-trafego.git ~/.claude/skills/gestor-de-trafego
 node ~/.claude/skills/gestor-de-trafego/scripts/gt.mjs setup
 ```
 
