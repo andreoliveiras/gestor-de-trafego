@@ -1,0 +1,23 @@
+{
+  "contas": [
+    {
+      "nome": "Meu Negocio",
+      "account_id": "act_0000000000000000",
+      "produto": "descreva em uma linha o que essa conta vende",
+
+      "plataforma": "kiwify",
+      "env_client_id": "KIWIFY_CLIENT_ID",
+      "env_client_secret": "KIWIFY_CLIENT_SECRET",
+      "env_account_id": "KIWIFY_ACCOUNT_ID"
+    },
+    {
+      "nome": "Exemplo com Hotmart",
+      "account_id": "act_0000000000000000",
+      "produto": "curso de alguma coisa",
+
+      "plataforma": "hotmart",
+      "env_client_id": "HOTMART_CLIENT_ID",
+      "env_client_secret": "HOTMART_CLIENT_SECRET"
+    }
+  ]
+}
