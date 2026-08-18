@@ -4,6 +4,9 @@
       "nome": "Meu Negocio",
       "account_id": "act_0000000000000000",
       "produto": "descreva em uma linha o que essa conta vende",
+      "ticket": 500,
+      "roas_minimo": 2.5,
+      "cpa_alvo": 200,
 
       "plataforma": "kiwify",
       "env_client_id": "KIWIFY_CLIENT_ID",
@@ -14,6 +17,9 @@
       "nome": "Exemplo com Hotmart",
       "account_id": "act_0000000000000000",
       "produto": "curso de alguma coisa",
+      "ticket": 197,
+      "roas_minimo": 1.8,
+      "cpa_alvo": 110,
 
       "plataforma": "hotmart",
       "env_client_id": "HOTMART_CLIENT_ID",
