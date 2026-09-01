@@ -151,6 +151,7 @@ const cacheToken = new Map();
 // Sem isso, venda da noite cai no dia seguinte e o cruzamento com a Meta desalinha.
 const FUSO_PADRAO = "America/Sao_Paulo";
 const diaLocal = (iso, fuso) => new Date(iso).toLocaleDateString("sv-SE", { timeZone: fuso || FUSO_PADRAO });
+const diasEntre = (a, b) => Math.round((new Date(`${b}T12:00:00Z`) - new Date(`${a}T12:00:00Z`)) / 86400000);
 const somarDias = (d, n) => {
   const x = new Date(`${d}T12:00:00Z`);
   x.setUTCDate(x.getUTCDate() + n);
@@ -175,7 +176,21 @@ async function tokenKiwify(conta) {
   return json.access_token;
 }
 
+// A API da Kiwify devolve no maximo cerca de uma semana por chamada: pedir 30 dias
+// retorna so o final do periodo, e o cruzamento sai com menos vendas do que existe.
+// Por isso a janela e fatiada em pedacos de 7 dias e as transacoes sao deduplicadas.
 async function vendasKiwify(conta, { since, until }) {
+  const PASSO = 7;
+  if (diasEntre(since, until) > PASSO) {
+    const vistas = new Map();
+    let ini = since;
+    while (ini <= until) {
+      const fim = somarDias(ini, PASSO - 1) > until ? until : somarDias(ini, PASSO - 1);
+      for (const v of await vendasKiwify(conta, { since: ini, until: fim })) vistas.set(v.id, v);
+      ini = somarDias(fim, 1);
+    }
+    return [...vistas.values()];
+  }
   // A API da Kiwify trata end_date como exclusivo: pedimos um dia a mais e recortamos depois.
   const untilApi = somarDias(until, 1);
   const tk = await tokenKiwify(conta);
