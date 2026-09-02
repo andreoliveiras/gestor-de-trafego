@@ -210,6 +210,11 @@ async function vendasKiwify(conta, { since, until }) {
     total = json.pagination?.total_pages || 1;
     page++;
   } while (page <= total);
+  // ATENCAO: a API da Kiwify devolve apenas net_amount, que e o LIQUIDO do produtor,
+  // ja descontada a taxa da plataforma. Nao e o preco pago pelo cliente. Numa venda de
+  // R$597 no cartao, o net_amount fica por volta de R$542 a R$554 conforme o parcelamento.
+  // O ROAS calculado aqui e sobre o que entra no caixa, que e mais conservador e melhor
+  // para decidir escala. Nunca chame esse numero de faturamento bruto.
   return itens.map((v) => ({
     id: v.id,
     dia: diaLocal(v.created_at, conta.fuso),
@@ -346,8 +351,8 @@ async function cmdVendas() {
   const receita = novas.reduce((s, v) => s + v.preco, 0);
   console.log(`\n${conta.nome} · ${conta.plataforma} · ${a.since} a ${a.until}\n`);
   console.log(`  Vendas pagas novas: ${novas.length}`);
-  console.log(`  Receita bruta:      ${BRL(receita)}`);
-  console.log(`  Ticket medio:       ${novas.length ? BRL(receita / novas.length) : "-"}`);
+  console.log(`  Receita liquida:    ${BRL(receita)}  (ja sem a taxa da plataforma)`);
+  console.log(`  Liquido por venda:  ${novas.length ? BRL(receita / novas.length) : "-"}  (o preco cobrado e maior)`);
   if (vendas.length - novas.length > 0) console.log(`  Renovacoes (fora da conta acima): ${vendas.length - novas.length}`);
   const porProduto = {};
   for (const v of novas) porProduto[v.produto] = (porProduto[v.produto] || 0) + 1;
@@ -372,7 +377,7 @@ async function cmdCruzar() {
   }
 
   console.log(`\n${conta.nome} · ROAS do gerenciador contra venda aprovada · ${a.since} a ${a.until}\n`);
-  console.log(`  ${pad("dia", 12)}${padL("gasto", 10)}${padL("cp pixel", 10)}${padL("ROAS pixel", 12)}${padL("vendas reais", 14)}${padL("receita real", 14)}${padL("ROAS real", 11)}`);
+  console.log(`  ${pad("dia", 12)}${padL("gasto", 10)}${padL("cp pixel", 10)}${padL("ROAS pixel", 12)}${padL("vendas reais", 14)}${padL("receita liq.", 14)}${padL("ROAS liq.", 11)}`);
   let tg = 0, tcp = 0, trecPix = 0, tv = 0, trec = 0;
   for (const d of dias.sort((x, y) => x.data.localeCompare(y.data))) {
     const real = porDia[d.data] || { n: 0, receita: 0 };
@@ -385,8 +390,9 @@ async function cmdCruzar() {
     const cobertura = (tcp / tv) * 100;
     console.log(`\n  O pixel enxergou ${Math.round(cobertura)}% das vendas e ${Math.round((trecPix / trec) * 100)}% da receita.`);
     console.log(`  Custo por venda paga de verdade: ${BRL(tg / tv)}`);
-    console.log(`\n  Leia assim: o ROAS real da coluna da direita e TETO, porque joga toda a receita`);
-    console.log(`  (inclusive organico e bio) contra o gasto de midia. O ROAS do pixel e PISO.`);
+    console.log(`\n  Leia assim: a coluna da direita usa a receita LIQUIDA da plataforma, ja sem a`);
+    console.log(`  taxa dela, e joga toda ela (inclusive organico e bio) contra o gasto de midia,`);
+    console.log(`  entao e TETO de atribuicao e PISO de faturamento. O ROAS do pixel e piso dos dois.`);
     console.log(`  O numero verdadeiro esta entre os dois. Para fechar a faixa, parametrize os links.\n`);
   }
 }

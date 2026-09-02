@@ -51,6 +51,12 @@ Sem elas, o número engana e a decisão sai errada.
 
 **1. O ROAS do gerenciador infla.** Ele conta compra que o pixel atribuiu mas que nunca virou dinheiro: boleto não pago, cartão recusado, atribuição duplicada. Chame sempre de ROAS de gerenciador. Escala grande só com ROAS real.
 
+**2a. Receita de plataforma quase nunca é o preço cobrado.** A API da Kiwify devolve só o
+`net_amount`, que é o líquido do produtor depois da taxa. Uma venda de R$597 no cartão aparece como
+R$542 a R$554. Isso é melhor para decidir escala, porque é o que entra no caixa, mas **nunca chame
+esse número de faturamento bruto**, e não conclua que existe divergência de preço entre a página e
+o checkout só porque os números não batem. Confira o preço no próprio checkout antes de afirmar.
+
 **2. O ROAS real é uma faixa, não um número.** `gt.mjs cruzar` devolve os dois lados. O do pixel é piso, porque a atribuição perde venda. O da plataforma dividido pelo gasto é teto, porque inclui venda que veio do orgânico e da bio. O número verdadeiro está entre os dois, e só fecha quando os links carregarem UTM que identifique a campanha.
 
 **3. Não ranqueie vencedor por ROAS puro.** R$23 gastos com uma venda de sorte dá ROAS 22 e não significa nada. Antes de ranquear, aplique o filtro de volume, e as duas condições valem juntas:
